@@ -1,0 +1,425 @@
+#include<iostream>
+#include<windows.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<time.h>
+#include<fstream>
+using namespace std;
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #define RESET "\033[0m"
+    #define RED "\033[1;31m"
+    #define GREEN "\033[1;32m"
+    #define BLUE "\033[1;34m"
+    #define WHITE "\033[1;37m"
+#endif
+void setColor(string color) {
+    #ifdef _WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (color == "red") {
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+        } else if (color == "green") {
+            SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        } else if (color == "blue") {
+            SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        } else if (color == "white") {
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        } else {
+            SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+        }
+    #else
+        if (color == "red") {
+            cout << RED;
+        } else if (color == "green") {
+            cout << GREEN;
+        } else if (color == "blue") {
+            cout << BLUE;
+        } else if (color == "white") {
+            cout << WHITE;
+        } else {
+            cout << RESET;
+        }
+    #endif
+}
+void gotoRowCol(int rpos, int cpos)
+{
+ int xpos=cpos, ypos = rpos;
+ COORD scrn;
+ HANDLE hOuput = GetStdHandle(STD_OUTPUT_HANDLE);
+ scrn.X = cpos;
+ scrn.Y = rpos;
+ SetConsoleCursorPosition(hOuput, scrn);
+}
+void BOX(int sr,int sc,int er,int ec)
+{
+    char ch=221;
+    for(int i=sc;i<=ec;i++)
+    {
+     gotoRowCol(er,i);
+     cout<<ch<<endl;
+    }
+    for(int i=sc;i<=ec;i++)
+    {
+        gotoRowCol(sr,i);
+        cout<<ch<<endl;
+    }
+    for(int i=sr;i>=er;i--)
+    {
+        gotoRowCol(i,ec);
+        cout<<ch<<endl;
+    }
+    for(int i=sr;i>=er;i--)
+    {
+        gotoRowCol(i,sc);
+        cout<<ch<<endl;
+    }
+}
+void LINE(int sr)
+{
+    char ch=221;
+    for(int i=sr;i<=20;i++)
+    {
+        gotoRowCol(i,100);
+        cout<<ch<<endl;
+    }
+    for(int i=75;i<=99;i++)
+    {
+        gotoRowCol(9,i);
+        cout<<'_'<<endl;
+    }
+    gotoRowCol(1,82);
+    cout<<"SNAKES"<<endl;
+    gotoRowCol(1,106);
+    cout<<"SCORE BOARD"<<endl;
+    gotoRowCol(3,80);
+    cout<<"95 ____ 15"<<endl;
+    gotoRowCol(4,80);
+    cout<<"77 ____ 32"<<endl;
+    gotoRowCol(5,80);
+    cout<<"60 ____ 28"<<endl;
+    gotoRowCol(6,80);
+    cout<<"34 ____ 20"<<endl;
+    gotoRowCol(7,80);
+    cout<<"20 ____ 02"<<endl;
+    gotoRowCol(11,82);
+    cout<<"LADERS"<<endl;
+    gotoRowCol(13,80);
+    cout<<"03 ____ 24"<<endl;
+    gotoRowCol(14,80);
+    cout<<"14 ____ 42"<<endl;
+    gotoRowCol(15,80);
+    cout<<"30 ____ 86"<<endl;
+    gotoRowCol(16,80);
+    cout<<"37 ____ 90"<<endl;
+    gotoRowCol(17,80);
+    cout<<"66 ____ 74"<<endl;
+}
+void BOARD(int sr,int sc,int er,int ec)
+{
+    int gr=er;   //gr is the row gape in a boxes from first to second
+    int gc=ec;   //gc is the column gape in a boxes from first to second
+    int k=100;
+    int r=10;   //total number of boxes in a row
+    int c=10;
+    float rd=er/2;
+    float cd=ec/2;
+    for(int j=1;j<=r;j++)
+    {
+    for (int i=1;i<=c;i++)
+    {
+    BOX (er,sc,sr,ec);
+    gotoRowCol(rd,cd);
+    setColor("red");
+    cout<<k<<endl;
+    setColor("white");
+    cd=cd+gc;
+    k--;
+    sc==ec;
+    ec=ec+gc;
+    }
+rd=rd+gr;
+sc=0;
+ec=gc;
+sr==er;
+er=er+gr;
+cd=ec/2;
+}
+}
+void Dice_is_six(int &score)
+{
+    int d;
+    score =0;
+    do
+    {
+    while(!kbhit())
+    {
+     d=rand()%6 +1;
+     gotoRowCol(30,80);
+     cout<<d<<endl;
+    }
+    getch();
+    score =score +d;
+    }
+    while(d==6);
+    if(score>=18)
+    {
+        score=0;
+    }
+}
+void Dice_for_first_six(int &score)
+{
+    int d;
+    score =0;
+    while(!kbhit())
+    {
+     d=rand()%6 +1;
+     gotoRowCol(30,80);
+     cout<<d<<endl;
+    }
+    getch();
+    score =score +d;
+}
+void Turn_change(int &turn)
+{
+    if(turn==0)
+    {
+        turn=1;
+    }
+    else
+    {
+        turn=0;
+    }
+}
+void SNAKES(int player[],int turn)
+{
+    if(player[turn]==95)
+    {
+        player[turn]=player[turn]-80;
+        gotoRowCol(37,80);
+        cout<<"player "<< turn+1 << " got a 1st snake ";
+    }
+    else if(player[turn]==77)
+    {
+        player[turn]=player[turn]-45;
+        gotoRowCol(37,80);
+        cout<<"player "<< turn+1 << " got a 2nd snake ";
+    }
+        else if(player[turn]==60)
+    {
+        player[turn]=player[turn]-32;
+        gotoRowCol(37,80);
+        cout<<"player "<< turn+1 << " got a 3rd snake ";
+    }
+        else if(player[turn]==34)
+    {
+        player[turn]=player[turn]-14;
+        gotoRowCol(37,80);
+        cout<<"player "<< turn+1 << " got a 4th snake ";
+    }
+        else if(player[turn]==20)
+    {
+        player[turn]=player[turn]-18;
+        gotoRowCol(37,80);
+        cout<<"player "<< turn+1 << " got a 5th snake ";
+    }
+    else
+    {
+        player[turn]=player[turn]+0;
+        gotoRowCol(37,80);
+        cout<<"                                       ";
+    }
+}
+void LADERS(int player[],int turn)
+{
+    if(player[turn]==3)
+    {
+        player[turn]=player[turn]+21;
+        gotoRowCol(39,80);
+        cout<<"player "<< turn+1 << " got a 1st lader ";
+    }
+    else if(player[turn]==14)
+    {
+        player[turn]=player[turn]+28;
+        gotoRowCol(39,80);
+        cout<<"player "<< turn+1 << " got a 2nd lader ";
+    }
+        else if(player[turn]==30)
+    {
+        player[turn]=player[turn]+56;
+        gotoRowCol(39,80);
+        cout<<"player "<< turn+1 << " got a 3rd lader ";
+    }
+        else if(player[turn]==37)
+    {
+        player[turn]=player[turn]+53;
+        gotoRowCol(39,80);
+        cout<<"player "<< turn+1 << " got a 4th lader ";
+    }
+        else if(player[turn]==66)
+    {
+        player[turn]=player[turn]+8;
+        gotoRowCol(39,80);
+        cout<<"player "<< turn+1 << " got a 5th lader ";
+    }
+    else
+    {
+        player[turn]=player[turn]+0;
+        gotoRowCol(39,80);
+        cout<<"                                       ";
+    }
+}
+void token(char p_symbol[],int player[],int turn)
+{
+    int sr=68;
+    int sc=68;
+    if(turn==0)
+    {
+        setColor("blue");
+    }
+    else
+    {
+        setColor("green");
+    }
+    if(player[turn]>=0&&player[turn]<=10)
+    {
+        int col;
+        sr=sr;
+        sc=68;
+        col=sc-(7*(player[turn]-1));
+        gotoRowCol(sr,col);
+        cout<<p_symbol[turn] ;
+    }
+    if(player[turn]>=11&&player[turn]<=100)
+    {
+        int r=(player[turn]-1)/10;
+        int c=(player[turn]-1)%10;
+        sr=sr-r*7;
+        sc=sc-c*7;
+        gotoRowCol(sr,sc);
+        cout<<p_symbol[turn] ;
+    }
+    setColor("white");
+}
+void remove_token(char p_symbol[],int player[],int turn)
+{
+    int sr=68;
+    int sc=68;
+    int col;
+    if(player[turn]>=0&&player[turn]<=10)
+    {
+        sr=sr;
+        sc=68;
+        col=sc-(7*(player[turn]-1));
+        gotoRowCol(sr,col);
+        cout<<p_symbol[turn+2] ;
+    }
+    if(player[turn]>=11&&player[turn]<=100)
+    {
+        int r=(player[turn]-1)/10;
+        int c=(player[turn]-1)%10;
+        sr=sr-r*7;
+        sc=sc-c*7;
+        gotoRowCol(sr,sc);
+        cout<<p_symbol[turn+2] ;
+    }
+}
+void save_game(int turn, int board_position[])
+{
+    int size = 2;
+    ofstream file("Saved_game.txt");
+    file << turn << endl;
+    for(int i = 0; i < size; i++)
+    {
+        file << board_position[i] << " ";
+    }
+}
+void load_game(int turn, int board_position[])
+{
+    char load;
+    cout << "Press l to load game, and press any other key to start new game: ";
+    cin >> load;
+    if(load == 'l')
+    {
+        int size = 2;
+        ifstream file("Saved_game.txt");
+        file >> turn;
+        cout << endl;
+        for(int i = 0; i < size; i++)
+        {
+            file >> board_position[i];cout <<  " ";
+        }
+    }
+
+}
+void PLAYER_SCORE(int player[],int score,int turn,char p_symbol[])
+{
+   while(player[turn]<100)
+    {
+	save_game(turn, player);
+        if(player[turn]==0)
+        {
+            Dice_for_first_six(score);
+            gotoRowCol(32,80);
+            cout<<score<<endl;
+            if(score>=6)
+            {
+                player[turn]=player[turn]+1;
+            }
+        }
+        if(player[turn]>=1 && player[turn]<100)
+        {
+            Dice_is_six(score);
+            gotoRowCol(32,80);
+            setColor("blue");
+            cout<<score<<endl;
+            setColor("white");
+            remove_token(p_symbol,player,turn);
+            if(player[turn]+score <=100)
+            {
+                player[turn] = player[turn] + score;
+                SNAKES(player,turn);
+                LADERS(player,turn);
+                if(player[turn]>=100)
+                {
+                    player[turn] = player[turn];
+                    gotoRowCol(turn+23,75);
+                    cout<<"player "<< turn+1 << " is Winner "<<player[turn]<<endl;
+                }
+                else
+                {
+                    player[turn] =player[turn] + 0;
+                    gotoRowCol(turn+7,103);
+                    cout<<"player "<< turn+1 << " score is "<<player[turn]<<endl;
+                }
+            token(p_symbol,player,turn);
+            Turn_change(turn);
+            }
+            else
+            {
+                token(p_symbol,player,turn);
+                Turn_change(turn);
+            }
+        }
+        else
+        {
+            Turn_change(turn);
+        }
+    }
+}
+int main()
+{
+int sr=0;
+int sc=0;
+int er=7;
+int ec=7;
+int player[2] = {0,0};
+int turn=0;
+load_game(turn,player);
+char p_symbol[4] = {'#','@',' ',' '};
+int score;
+system("CLS");
+BOARD(sr,sc,er,ec);
+LINE(sr);
+PLAYER_SCORE(player,score,turn,p_symbol);
+}
